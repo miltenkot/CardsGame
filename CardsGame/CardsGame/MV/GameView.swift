@@ -20,8 +20,16 @@ struct GameView: View {
             Grid(horizontalSpacing: spacing, verticalSpacing: spacing) {
                 ForEach(0..<maxVisibleRows, id: \.self) { row in
                     GridRow {
-                        CardView(title: data[row].question, isSelected: $leftIsSelected, height: rowHeight)
-                        CardView(title: data[row].answer, isSelected: $rightIsSelected, height: rowHeight)
+                        CardView(
+                            title: data[row].question,
+                            isSelected: $leftIsSelected,
+                            height: rowHeight
+                        )
+                        CardView(
+                            title: data[row].answer,
+                            isSelected: $rightIsSelected,
+                            height: rowHeight
+                        )
                     }
                 }
             }

@@ -9,6 +9,7 @@ struct CardView: View {
     let cornerRadius: CGFloat = 12
     
     var body: some View {
+        let _ = print("update view")
         Button {
             withAnimation(.easeInOut(duration: 0.2)) {
                 if isSelected == title {

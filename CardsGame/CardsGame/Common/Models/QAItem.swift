@@ -1,6 +1,6 @@
 import Foundation
 
-struct QAItem: Identifiable, Hashable {
+struct QAItem: Identifiable, Hashable, Equatable {
     let id = UUID()
     let question: String
     let answer: String
