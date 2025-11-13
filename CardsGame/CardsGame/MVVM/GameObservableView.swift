@@ -8,6 +8,21 @@ struct GameObservableView: View {
         var leftIsSelected: String?
         var rightIsSelected: String?
         
+        let shuffledQuestions: [String]
+        let shuffledAnswers: [String]
+        
+        let maxVisibleRows = 5
+        
+        init() {
+            let dataSubset = Array(data.shuffled().prefix(maxVisibleRows))
+            
+            let questions = dataSubset.map(\.question)
+            let answers = dataSubset.map(\.answer)
+            
+            self.shuffledQuestions = questions.shuffled()
+            self.shuffledAnswers = answers.shuffled()
+        }
+        
         enum ToggleSelectionSide {
             case left
             case right
@@ -47,9 +62,9 @@ struct GameObservableView: View {
             )
             
             Grid(horizontalSpacing: spacing, verticalSpacing: spacing) {
-                ForEach(game.data.prefix(5)) { data in
+                ForEach(game.shuffledQuestions.indices, id: \.self) { index in
                     GridRow {
-                        let leftTitle = data.question
+                        let leftTitle = game.shuffledQuestions[index]
                         CardViewObservable(
                             title: leftTitle,
                             isSelected: game.leftIsSelected == leftTitle,
@@ -57,7 +72,7 @@ struct GameObservableView: View {
                             height: rowHeight
                         )
                         
-                        let rightTitle = data.answer
+                        let rightTitle = game.shuffledAnswers[index]
                         CardViewObservable(
                             title: rightTitle,
                             isSelected: game.rightIsSelected == rightTitle,
