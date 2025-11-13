@@ -10,6 +10,10 @@ struct GameView: View {
     
     let data = QAItem.mock
     
+    var availableData: [QAItem] {
+        Array(data.prefix(5))
+    }
+    
     var body: some View {
         GeometryReader { geo in
             let availableHeight = geo.size.height - (padding * 3)
@@ -18,15 +22,15 @@ struct GameView: View {
                 0
             )
             Grid(horizontalSpacing: spacing, verticalSpacing: spacing) {
-                ForEach(0..<maxVisibleRows, id: \.self) { row in
+                ForEach(availableData) { data in
                     GridRow {
                         CardView(
-                            title: data[row].question,
+                            title: data.question,
                             isSelected: $leftIsSelected,
                             height: rowHeight
                         )
                         CardView(
-                            title: data[row].answer,
+                            title: data.answer,
                             isSelected: $rightIsSelected,
                             height: rowHeight
                         )
