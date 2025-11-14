@@ -4,7 +4,6 @@ struct QAItem: Identifiable, Hashable, Equatable {
     let id = UUID()
     let question: String
     let answer: String
-    var answered: Bool = false
 }
 
 extension QAItem {

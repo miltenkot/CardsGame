@@ -5,22 +5,31 @@ struct GameObservableView: View {
     @Observable final class Game {
         let data = QAItem.mock
         
+        let dataLookup: [String: String]
+        
+        var remainingData: [QAItem]
+        
         var leftIsSelected: String?
         var rightIsSelected: String?
         
-        let shuffledQuestions: [String]
-        let shuffledAnswers: [String]
+        var visibleQuestions: [String]
+        var visibleAnswers: [String]
         
         let maxVisibleRows = 5
         
         init() {
-            let dataSubset = Array(data.shuffled().prefix(maxVisibleRows))
+            let allData = data.shuffled()
             
-            let questions = dataSubset.map(\.question)
-            let answers = dataSubset.map(\.answer)
+            self.dataLookup = Dictionary(uniqueKeysWithValues: allData.map { ($0.question, $0.answer) })
             
-            self.shuffledQuestions = questions.shuffled()
-            self.shuffledAnswers = answers.shuffled()
+            let dataSubset = Array(allData.prefix(maxVisibleRows))
+            var remaining = Array(allData.dropFirst(maxVisibleRows))
+            
+            remaining.reverse()
+            self.remainingData = remaining
+            
+            self.visibleQuestions = dataSubset.map(\.question).shuffled()
+            self.visibleAnswers = dataSubset.map(\.answer).shuffled()
         }
         
         enum ToggleSelectionSide {
@@ -29,6 +38,8 @@ struct GameObservableView: View {
         }
         
         func toggleSelection(_ title: String, for side: ToggleSelectionSide) {
+            if title.isEmpty { return }
+            
             switch side {
             case .left:
                 toggleSelection(property: &leftIsSelected, title: title)
@@ -36,6 +47,7 @@ struct GameObservableView: View {
                 toggleSelection(property: &rightIsSelected, title: title)
             }
             
+            checkForMatch()
         }
         
         private func toggleSelection(property: inout String?, title: String) {
@@ -45,44 +57,72 @@ struct GameObservableView: View {
                 property = title
             }
         }
+        
+        private func checkForMatch() {
+            guard let left = leftIsSelected, let right = rightIsSelected else {
+                return
+            }
+            
+            if dataLookup[left] == right {
+                guard let leftIndex = visibleQuestions.firstIndex(of: left),
+                      let rightIndex = visibleAnswers.firstIndex(of: right) else {
+                    return
+                }
+                
+                if let newItem = remainingData.popLast() {
+                    visibleQuestions[leftIndex] = newItem.question
+                    visibleAnswers[rightIndex] = newItem.answer
+                } else {
+                    visibleQuestions[leftIndex] = ""
+                    visibleAnswers[rightIndex] = ""
+                }
+                
+                leftIsSelected = nil
+                rightIsSelected = nil
+            }
+        }
     }
     
     @State private var game = Game()
     
     let padding: CGFloat = 16
-    let maxVisibleRows: Int = 5
     let spacing: CGFloat = 12
     
     var body: some View {
         GeometryReader { geo in
             let availableHeight = geo.size.height - (padding * 3)
             let rowHeight = max(
-                (availableHeight - (CGFloat(maxVisibleRows - 1) * spacing)) / CGFloat(max(maxVisibleRows, 1)),
+                (availableHeight - (CGFloat(game.maxVisibleRows - 1) * spacing)) / CGFloat(max(game.maxVisibleRows, 1)),
                 0
             )
             
-            Grid(horizontalSpacing: spacing, verticalSpacing: spacing) {
-                ForEach(game.shuffledQuestions.indices, id: \.self) { index in
-                    GridRow {
-                        let leftTitle = game.shuffledQuestions[index]
-                        CardViewObservable(
-                            title: leftTitle,
-                            isSelected: game.leftIsSelected == leftTitle,
-                            onTap: { game.toggleSelection(leftTitle, for: .left) },
-                            height: rowHeight
-                        )
-                        
-                        let rightTitle = game.shuffledAnswers[index]
-                        CardViewObservable(
-                            title: rightTitle,
-                            isSelected: game.rightIsSelected == rightTitle,
-                            onTap: { game.toggleSelection(rightTitle, for: .right) },
-                            height: rowHeight
-                        )
+            ZStack {
+                Grid(horizontalSpacing: spacing, verticalSpacing: spacing) {
+                    ForEach(game.visibleQuestions.indices, id: \.self) { index in
+                        GridRow {
+                            if index < game.visibleQuestions.count && index < game.visibleAnswers.count {
+                                
+                                let leftTitle = game.visibleQuestions[index]
+                                CardViewObservable(
+                                    title: leftTitle,
+                                    isSelected: game.leftIsSelected == leftTitle,
+                                    onTap: { game.toggleSelection(leftTitle, for: .left) },
+                                    height: rowHeight
+                                )
+                                
+                                let rightTitle = game.visibleAnswers[index]
+                                CardViewObservable(
+                                    title: rightTitle,
+                                    isSelected: game.rightIsSelected == rightTitle,
+                                    onTap: { game.toggleSelection(rightTitle, for: .right) },
+                                    height: rowHeight
+                                )
+                            }
+                        }
                     }
                 }
+                .padding(padding)
             }
-            .padding(padding)
         }
     }
 }
