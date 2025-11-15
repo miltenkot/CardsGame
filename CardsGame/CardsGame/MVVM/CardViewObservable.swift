@@ -13,9 +13,7 @@ struct CardViewObservable: View, Equatable {
     var body: some View {
         let _ = print("state changed \(title)")
         Button {
-            withAnimation(.easeInOut(duration: 0.2)) {
-                onTap()
-            }
+            onTap()
         } label: {
             Text(title)
                 .font(.headline)
