@@ -21,13 +21,14 @@ struct CardViewObservable: View, Equatable {
             PrimaryButtonStyle(
                 isSelected: isSelected,
                 selectionColor: isCorrect ? Color.green : Color.accentColor,
-                selectionBackgroundColor: isCorrect ? Color.green.opacity(0.15) : Color.accentColor.opacity(0.15),
+                selectionBackgroundColor: isCorrect ? Color.green.opacity(0.3) : Color.accentColor.opacity(0.15),
                 cornerRadius: cornerRadius,
                 height: height
             )
         )
         .accessibilityLabel(title)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .disabled(isCorrect)
     }
     
     static func == (lhs: CardViewObservable, rhs: CardViewObservable) -> Bool {

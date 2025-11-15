@@ -15,6 +15,7 @@ import SwiftUI
     var visibleAnswers: [String]
     
     let maxVisibleRows = 5
+    let matchDelay = 1.5
     
     var sidesIsMatch = false
     
@@ -69,7 +70,7 @@ import SwiftUI
         if dataLookup[left] == right {
             sidesIsMatch = true
             
-            try! await Task.sleep(for: .seconds(1))
+            try! await Task.sleep(for: .seconds(matchDelay))
             
             guard let leftIndex = visibleQuestions.firstIndex(of: left),
                   let rightIndex = visibleAnswers.firstIndex(of: right) else {
