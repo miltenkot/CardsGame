@@ -16,6 +16,8 @@ import SwiftUI
     
     let maxVisibleRows = 5
     
+    var sidesIsMatch = false
+    
     init() {
         let allData = data.shuffled()
         
@@ -46,7 +48,9 @@ import SwiftUI
             toggleSelection(property: &rightIsSelected, title: title)
         }
         
-        checkForMatch()
+        Task {
+            await checkForMatch()
+        }
     }
     
     private func toggleSelection(property: inout String?, title: String) {
@@ -57,12 +61,16 @@ import SwiftUI
         }
     }
     
-    private func checkForMatch() {
+    private func checkForMatch() async {
         guard let left = leftIsSelected, let right = rightIsSelected else {
             return
         }
         
         if dataLookup[left] == right {
+            sidesIsMatch = true
+            
+            try! await Task.sleep(for: .seconds(1))
+            
             guard let leftIndex = visibleQuestions.firstIndex(of: left),
                   let rightIndex = visibleAnswers.firstIndex(of: right) else {
                 return
@@ -78,6 +86,7 @@ import SwiftUI
             
             leftIsSelected = nil
             rightIsSelected = nil
+            sidesIsMatch = false
         }
     }
 }

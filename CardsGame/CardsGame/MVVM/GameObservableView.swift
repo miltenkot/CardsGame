@@ -26,6 +26,7 @@ struct GameObservableView: View {
                                     title: leftTitle,
                                     isSelected: game.leftIsSelected == leftTitle,
                                     onTap: { game.toggleSelection(leftTitle, for: .left) },
+                                    isCorrect: game.sidesIsMatch && game.leftIsSelected == leftTitle,
                                     height: rowHeight
                                 )
                                 
@@ -34,6 +35,7 @@ struct GameObservableView: View {
                                     title: rightTitle,
                                     isSelected: game.rightIsSelected == rightTitle,
                                     onTap: { game.toggleSelection(rightTitle, for: .right) },
+                                    isCorrect: game.sidesIsMatch && game.rightIsSelected == rightTitle,
                                     height: rowHeight
                                 )
                             }

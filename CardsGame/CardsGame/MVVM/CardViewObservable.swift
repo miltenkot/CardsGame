@@ -4,9 +4,7 @@ struct CardViewObservable: View, Equatable {
     let title: String
     let isSelected: Bool
     let onTap: () -> Void
-    
-    var selectionColor: Color = .accentColor
-    var selectionBackgroundColor: Color = Color.accentColor.opacity(0.15)
+    let isCorrect: Bool
     var height: CGFloat = 80
     let cornerRadius: CGFloat = 12
     
@@ -22,8 +20,8 @@ struct CardViewObservable: View, Equatable {
         .buttonStyle(
             PrimaryButtonStyle(
                 isSelected: isSelected,
-                selectionColor: selectionColor,
-                selectionBackgroundColor: selectionBackgroundColor,
+                selectionColor: isCorrect ? Color.green : Color.accentColor,
+                selectionBackgroundColor: isCorrect ? Color.green.opacity(0.15) : Color.accentColor.opacity(0.15),
                 cornerRadius: cornerRadius,
                 height: height
             )
@@ -35,8 +33,7 @@ struct CardViewObservable: View, Equatable {
     static func == (lhs: CardViewObservable, rhs: CardViewObservable) -> Bool {
         return lhs.title == rhs.title &&
         lhs.isSelected == rhs.isSelected &&
-        lhs.selectionColor == rhs.selectionColor &&
-        lhs.selectionBackgroundColor == rhs.selectionBackgroundColor &&
+        lhs.isCorrect == rhs.isCorrect &&
         lhs.height == rhs.height &&
         lhs.cornerRadius == rhs.cornerRadius
     }
