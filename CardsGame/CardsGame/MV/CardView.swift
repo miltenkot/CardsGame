@@ -11,12 +11,10 @@ struct CardView: View {
     var body: some View {
         let _ = print("update view")
         Button {
-            withAnimation(.easeInOut(duration: 0.2)) {
-                if isSelected == title {
-                    isSelected = nil
-                } else {
-                    isSelected = title
-                }
+            if isSelected == title {
+                isSelected = nil
+            } else {
+                isSelected = title
             }
         } label: {
             Text(title)
