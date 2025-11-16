@@ -9,6 +9,8 @@ struct CardViewObservable: View, Equatable {
     var height: CGFloat = 80
     let cornerRadius: CGFloat = 12
     
+    @State private var triggerBounce = 0
+    
     private var dynamicSelectionColor: Color {
         if isIncorrect { return .red }
         if isCorrect { return .green }
@@ -39,6 +41,22 @@ struct CardViewObservable: View, Equatable {
                 height: height
             )
         )
+        .keyframeAnimator(
+            initialValue: 1.0,
+            trigger: triggerBounce
+        ) { view, scale in
+            view.scaleEffect(scale)
+        } keyframes: { _ in
+            KeyframeTrack(\.self) {
+                SpringKeyframe(1.05, duration: 0.2, spring: .snappy)
+                SpringKeyframe(1.0, duration: 0.2, spring: .snappy)
+            }
+        }
+        .onChange(of: isCorrect) { oldValue, newValue in
+            if newValue == true && oldValue == false {
+                triggerBounce += 1
+            }
+        }
         .accessibilityLabel(title)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .disabled(isCorrect || isIncorrect)
