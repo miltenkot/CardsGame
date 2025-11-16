@@ -14,27 +14,24 @@ struct GameObservableView: View {
                 (availableHeight - (CGFloat(game.maxVisibleRows - 1) * spacing)) / CGFloat(max(game.maxVisibleRows, 1)),
                 0
             )
-            let safeCount = min(game.visibleQuestions.count, game.visibleAnswers.count)
             
             ZStack {
                 Grid(horizontalSpacing: spacing, verticalSpacing: spacing) {
-                    ForEach(0..<safeCount, id: \.self) { index in
+                    ForEach(game.visiblePairs) { pair in
                         GridRow {
-                            let leftTitle = game.visibleQuestions[index]
                             CardViewObservable(
-                                title: leftTitle,
-                                isSelected: game.leftIsSelected == leftTitle || game.matchedLeft == leftTitle,
-                                onTap: { game.toggleSelection(leftTitle, for: .left) },
-                                isCorrect: game.matchedLeft == leftTitle,
+                                title: pair.question,
+                                isSelected: game.leftIsSelected == pair.question || game.matchedLeft == pair.question,
+                                onTap: { game.toggleSelection(pair.question, for: .left) },
+                                isCorrect: game.matchedLeft == pair.question,
                                 height: rowHeight
                             )
                             
-                            let rightTitle = game.visibleAnswers[index]
                             CardViewObservable(
-                                title: rightTitle,
-                                isSelected: game.rightIsSelected == rightTitle || game.matchedRight == rightTitle,
-                                onTap: { game.toggleSelection(rightTitle, for: .right) },
-                                isCorrect: game.matchedRight == rightTitle,
+                                title: pair.answer,
+                                isSelected: game.rightIsSelected == pair.answer || game.matchedRight == pair.answer,
+                                onTap: { game.toggleSelection(pair.answer, for: .right) },
+                                isCorrect: game.matchedRight == pair.answer,
                                 height: rowHeight
                             )
                         }

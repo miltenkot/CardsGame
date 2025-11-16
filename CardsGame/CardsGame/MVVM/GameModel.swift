@@ -11,8 +11,7 @@ import SwiftUI
     var leftIsSelected: String?
     var rightIsSelected: String?
     
-    var visibleQuestions: [String]
-    var visibleAnswers: [String]
+    var visiblePairs: [QAItem]
     
     let maxVisibleRows = 5
     let matchDelay = 1.5
@@ -31,8 +30,15 @@ import SwiftUI
         remaining.reverse()
         self.remainingData = remaining
         
-        self.visibleQuestions = dataSubset.map(\.question).shuffled()
-        self.visibleAnswers = dataSubset.map(\.answer).shuffled()
+        let shuffledQuestions = dataSubset.map(\.question).shuffled()
+        let shuffledAnswers = dataSubset.map(\.answer).shuffled()
+        
+        self.visiblePairs = []
+        for i in 0..<dataSubset.count {
+            self.visiblePairs.append(
+                QAItem(question: shuffledQuestions[i], answer: shuffledAnswers[i])
+            )
+        }
     }
     
     enum ToggleSelectionSide {
@@ -74,27 +80,33 @@ import SwiftUI
             
             try! await Task.sleep(for: .seconds(matchDelay))
             
-            guard let leftIndex = visibleQuestions.firstIndex(of: left),
-                  let rightIndex = visibleAnswers.firstIndex(of: right) else {
+            guard let leftPairIndex = visiblePairs.firstIndex(where: { $0.question == left }),
+                  let rightPairIndex = visiblePairs.firstIndex(where: { $0.answer == right }) else {
+                resetSelections()
                 return
             }
             
             if let newItem = remainingData.popLast() {
-                visibleQuestions[leftIndex] = newItem.question
-                visibleAnswers[rightIndex] = newItem.answer
+                visiblePairs[leftPairIndex].question = newItem.question
+                visiblePairs[rightPairIndex].answer = newItem.answer
             } else {
-                visibleQuestions[leftIndex] = ""
-                visibleAnswers[rightIndex] = ""
+                visiblePairs[leftPairIndex].question = ""
+                visiblePairs[rightPairIndex].answer = ""
             }
             
-            if leftIsSelected == left {
-                leftIsSelected = nil
-            }
-            if rightIsSelected == right {
-                rightIsSelected = nil
-            }
-            matchedLeft = nil
-            matchedRight = nil
+            resetSelections()
         }
+    }
+    
+    private func resetSelections() {
+        if leftIsSelected == matchedLeft {
+            leftIsSelected = nil
+        }
+        if rightIsSelected == matchedRight {
+            rightIsSelected = nil
+        }
+        
+        matchedLeft = nil
+        matchedRight = nil
     }
 }
