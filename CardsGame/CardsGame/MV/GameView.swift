@@ -15,7 +15,7 @@ struct GameView: View {
     @State private var visibleQuestions: [String]
     @State private var visibleAnswers: [String]
     
-    private let maxVisibleRows = 5
+    private let maxVisibleRows = GameConfig.maxVisibleRows
     
     init() {
         let allData = data.shuffled()

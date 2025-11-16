@@ -13,8 +13,8 @@ import SwiftUI
     
     var visiblePairs: [QAItem]
     
-    let maxVisibleRows = 5
-    let matchDelay = 1.5
+    let maxVisibleRows = GameConfig.maxVisibleRows
+    let matchDelay = GameConfig.matchDelay
     
     var matchedLeft: String?
     var matchedRight: String?
@@ -22,6 +22,7 @@ import SwiftUI
     var mismatchedLeft: String?
     var mismatchedRight: String?
     var isShowingMismatch = false
+    let mismatchDelay = GameConfig.mismatchDelay
     
     init() {
         let allData = data.shuffled()
@@ -111,7 +112,7 @@ import SwiftUI
             mismatchedLeft = selectedLeft
             mismatchedRight = selectedRight
             
-            try! await Task.sleep(for: .seconds(1.0))
+            try! await Task.sleep(for: .seconds(mismatchDelay))
             
             mismatchedLeft = nil
             mismatchedRight = nil
