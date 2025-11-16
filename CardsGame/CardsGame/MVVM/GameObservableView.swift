@@ -21,23 +21,26 @@ struct GameObservableView: View {
                         GridRow {
                             CardViewObservable(
                                 title: pair.question,
-                                isSelected: game.leftIsSelected == pair.question || game.matchedLeft == pair.question,
+                                isSelected: game.leftIsSelected == pair.question || game.matchedLeft == pair.question || game.mismatchedLeft == pair.question,
                                 onTap: { game.toggleSelection(pair.question, for: .left) },
                                 isCorrect: game.matchedLeft == pair.question,
+                                isIncorrect: game.mismatchedLeft == pair.question,
                                 height: rowHeight
                             )
                             
                             CardViewObservable(
                                 title: pair.answer,
-                                isSelected: game.rightIsSelected == pair.answer || game.matchedRight == pair.answer,
+                                isSelected: game.rightIsSelected == pair.answer || game.matchedRight == pair.answer || game.mismatchedRight == pair.answer,
                                 onTap: { game.toggleSelection(pair.answer, for: .right) },
                                 isCorrect: game.matchedRight == pair.answer,
+                                isIncorrect: game.mismatchedRight == pair.answer,
                                 height: rowHeight
                             )
                         }
                     }
                 }
                 .padding(padding)
+                .disabled(game.isShowingMismatch)
             }
         }
     }

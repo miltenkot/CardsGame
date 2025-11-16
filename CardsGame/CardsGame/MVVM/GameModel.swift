@@ -19,6 +19,10 @@ import SwiftUI
     var matchedLeft: String?
     var matchedRight: String?
     
+    var mismatchedLeft: String?
+    var mismatchedRight: String?
+    var isShowingMismatch = false
+    
     init() {
         let allData = data.shuffled()
         
@@ -47,7 +51,7 @@ import SwiftUI
     }
     
     func toggleSelection(_ title: String, for side: ToggleSelectionSide) {
-        if title.isEmpty { return }
+        if title.isEmpty || isShowingMismatch { return }
         
         switch side {
         case .left:
@@ -74,9 +78,15 @@ import SwiftUI
             return
         }
         
+        let selectedLeft = left
+        let selectedRight = right
+        
+        leftIsSelected = nil
+        rightIsSelected = nil
+        
         if dataLookup[left] == right {
-            matchedLeft = left
-            matchedRight = right
+            matchedLeft = selectedLeft
+            matchedRight = selectedRight
             
             try! await Task.sleep(for: .seconds(matchDelay))
             
@@ -95,17 +105,22 @@ import SwiftUI
             }
             
             resetSelections()
+        } else {
+            isShowingMismatch = true
+            
+            mismatchedLeft = selectedLeft
+            mismatchedRight = selectedRight
+            
+            try! await Task.sleep(for: .seconds(1.0))
+            
+            mismatchedLeft = nil
+            mismatchedRight = nil
+            
+            isShowingMismatch = false
         }
     }
     
     private func resetSelections() {
-        if leftIsSelected == matchedLeft {
-            leftIsSelected = nil
-        }
-        if rightIsSelected == matchedRight {
-            rightIsSelected = nil
-        }
-        
         matchedLeft = nil
         matchedRight = nil
     }
