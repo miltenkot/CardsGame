@@ -14,31 +14,29 @@ struct GameObservableView: View {
                 (availableHeight - (CGFloat(game.maxVisibleRows - 1) * spacing)) / CGFloat(max(game.maxVisibleRows, 1)),
                 0
             )
+            let safeCount = min(game.visibleQuestions.count, game.visibleAnswers.count)
             
             ZStack {
                 Grid(horizontalSpacing: spacing, verticalSpacing: spacing) {
-                    ForEach(game.visibleQuestions.indices, id: \.self) { index in
+                    ForEach(0..<safeCount, id: \.self) { index in
                         GridRow {
-                            if index < game.visibleQuestions.count && index < game.visibleAnswers.count {
-                                
-                                let leftTitle = game.visibleQuestions[index]
-                                CardViewObservable(
-                                    title: leftTitle,
-                                    isSelected: game.leftIsSelected == leftTitle || game.matchedLeft == leftTitle,
-                                    onTap: { game.toggleSelection(leftTitle, for: .left) },
-                                    isCorrect: game.matchedLeft == leftTitle,
-                                    height: rowHeight
-                                )
-                                
-                                let rightTitle = game.visibleAnswers[index]
-                                CardViewObservable(
-                                    title: rightTitle,
-                                    isSelected: game.rightIsSelected == rightTitle || game.matchedRight == rightTitle,
-                                    onTap: { game.toggleSelection(rightTitle, for: .right) },
-                                    isCorrect: game.matchedRight == rightTitle,
-                                    height: rowHeight
-                                )
-                            }
+                            let leftTitle = game.visibleQuestions[index]
+                            CardViewObservable(
+                                title: leftTitle,
+                                isSelected: game.leftIsSelected == leftTitle || game.matchedLeft == leftTitle,
+                                onTap: { game.toggleSelection(leftTitle, for: .left) },
+                                isCorrect: game.matchedLeft == leftTitle,
+                                height: rowHeight
+                            )
+                            
+                            let rightTitle = game.visibleAnswers[index]
+                            CardViewObservable(
+                                title: rightTitle,
+                                isSelected: game.rightIsSelected == rightTitle || game.matchedRight == rightTitle,
+                                onTap: { game.toggleSelection(rightTitle, for: .right) },
+                                isCorrect: game.matchedRight == rightTitle,
+                                height: rowHeight
+                            )
                         }
                     }
                 }
