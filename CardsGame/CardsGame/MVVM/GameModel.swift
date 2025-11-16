@@ -17,7 +17,8 @@ import SwiftUI
     let maxVisibleRows = 5
     let matchDelay = 1.5
     
-    var sidesIsMatch = false
+    var matchedLeft: String?
+    var matchedRight: String?
     
     init() {
         let allData = data.shuffled()
@@ -68,7 +69,8 @@ import SwiftUI
         }
         
         if dataLookup[left] == right {
-            sidesIsMatch = true
+            matchedLeft = left
+            matchedRight = right
             
             try! await Task.sleep(for: .seconds(matchDelay))
             
@@ -85,9 +87,14 @@ import SwiftUI
                 visibleAnswers[rightIndex] = ""
             }
             
-            leftIsSelected = nil
-            rightIsSelected = nil
-            sidesIsMatch = false
+            if leftIsSelected == left {
+                leftIsSelected = nil
+            }
+            if rightIsSelected == right {
+                rightIsSelected = nil
+            }
+            matchedLeft = nil
+            matchedRight = nil
         }
     }
 }

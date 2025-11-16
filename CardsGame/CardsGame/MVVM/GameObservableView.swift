@@ -24,18 +24,18 @@ struct GameObservableView: View {
                                 let leftTitle = game.visibleQuestions[index]
                                 CardViewObservable(
                                     title: leftTitle,
-                                    isSelected: game.leftIsSelected == leftTitle,
+                                    isSelected: game.leftIsSelected == leftTitle || game.matchedLeft == leftTitle,
                                     onTap: { game.toggleSelection(leftTitle, for: .left) },
-                                    isCorrect: game.sidesIsMatch && game.leftIsSelected == leftTitle,
+                                    isCorrect: game.matchedLeft == leftTitle,
                                     height: rowHeight
                                 )
                                 
                                 let rightTitle = game.visibleAnswers[index]
                                 CardViewObservable(
                                     title: rightTitle,
-                                    isSelected: game.rightIsSelected == rightTitle,
+                                    isSelected: game.rightIsSelected == rightTitle || game.matchedRight == rightTitle,
                                     onTap: { game.toggleSelection(rightTitle, for: .right) },
-                                    isCorrect: game.sidesIsMatch && game.rightIsSelected == rightTitle,
+                                    isCorrect: game.matchedRight == rightTitle,
                                     height: rowHeight
                                 )
                             }
