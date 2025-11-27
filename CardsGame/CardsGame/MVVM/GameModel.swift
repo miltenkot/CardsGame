@@ -24,6 +24,29 @@ import SwiftUI
     var isShowingMismatch = false
     let mismatchDelay = GameConfig.mismatchDelay
     
+    func isMatched(_ text: String, side: ToggleSelectionSide) -> Bool {
+        switch side {
+        case .left: return matchedLeft.contains(text)
+        case .right: return matchedRight.contains(text)
+        }
+    }
+    
+    func isMismatched(_ text: String, side: ToggleSelectionSide) -> Bool {
+        switch side {
+        case .left: return mismatchedLeft == text
+        case .right: return mismatchedRight == text
+        }
+    }
+    
+    func isVisuallySelected(_ text: String, side: ToggleSelectionSide) -> Bool {
+        let isActiveSelection: Bool
+        switch side {
+        case .left: isActiveSelection = (leftIsSelected == text)
+        case .right: isActiveSelection = (rightIsSelected == text)
+        }
+        return isActiveSelection || isMatched(text, side: side) || isMismatched(text, side: side)
+    }
+    
     init() {
         let allData = data.shuffled()
         
