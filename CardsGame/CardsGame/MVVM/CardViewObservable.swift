@@ -31,6 +31,10 @@ struct CardViewObservable: View, Equatable {
             Text(title)
                 .font(.headline)
                 .frame(maxWidth: .infinity)
+                .opacity(isCorrect ? 0 : 1)
+                .scaleEffect(isCorrect ? 0.7 : 1.0)
+                .animation(.easeIn(duration: GameConfig.matchDelay), value: isCorrect)
+                .id(title)
         }
         .buttonStyle(
             PrimaryButtonStyle(
