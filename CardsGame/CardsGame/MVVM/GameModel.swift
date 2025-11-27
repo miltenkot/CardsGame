@@ -16,8 +16,8 @@ import SwiftUI
     let maxVisibleRows = GameConfig.maxVisibleRows
     let matchDelay = GameConfig.matchDelay
     
-    var matchedLeft: String?
-    var matchedRight: String?
+    var matchedLeft: Set<String> = []
+    var matchedRight: Set<String> = []
     
     var mismatchedLeft: String?
     var mismatchedRight: String?
@@ -86,14 +86,14 @@ import SwiftUI
         rightIsSelected = nil
         
         if dataLookup[left] == right {
-            matchedLeft = selectedLeft
-            matchedRight = selectedRight
+            matchedLeft.insert(selectedLeft)
+            matchedRight.insert(selectedRight)
             
             try! await Task.sleep(for: .seconds(matchDelay))
             
             guard let leftPairIndex = visiblePairs.firstIndex(where: { $0.question == left }),
                   let rightPairIndex = visiblePairs.firstIndex(where: { $0.answer == right }) else {
-                resetSelections()
+                cleanupMatches(left: left, right: right)
                 return
             }
             
@@ -105,7 +105,7 @@ import SwiftUI
                 visiblePairs[rightPairIndex].answer = ""
             }
             
-            resetSelections()
+            cleanupMatches(left: left, right: right)
         } else {
             isShowingMismatch = true
             
@@ -121,8 +121,8 @@ import SwiftUI
         }
     }
     
-    private func resetSelections() {
-        matchedLeft = nil
-        matchedRight = nil
+    private func cleanupMatches(left: String, right: String) {
+        matchedLeft.remove(left)
+        matchedRight.remove(right)
     }
 }
