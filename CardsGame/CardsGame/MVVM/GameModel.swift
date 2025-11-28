@@ -118,7 +118,10 @@ import SwiftUI
                 return
             }
             
-            withAnimation(.bouncy(duration: matchDelay).delay(matchDelay)) {
+            withAnimation(
+                .bouncy(duration: matchDelay)
+                .delay(matchDelay)
+            ) {
                 if let newItem = remainingData.popLast() {
                     visiblePairs[leftPairIndex].question = newItem.question
                     visiblePairs[rightPairIndex].answer = newItem.answer
