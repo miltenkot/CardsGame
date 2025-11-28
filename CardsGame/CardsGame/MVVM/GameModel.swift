@@ -112,20 +112,20 @@ import SwiftUI
             matchedLeft.insert(selectedLeft)
             matchedRight.insert(selectedRight)
             
-            try! await Task.sleep(for: .seconds(matchDelay))
-            
             guard let leftPairIndex = visiblePairs.firstIndex(where: { $0.question == left }),
                   let rightPairIndex = visiblePairs.firstIndex(where: { $0.answer == right }) else {
                 cleanupMatches(left: left, right: right)
                 return
             }
             
-            if let newItem = remainingData.popLast() {
-                visiblePairs[leftPairIndex].question = newItem.question
-                visiblePairs[rightPairIndex].answer = newItem.answer
-            } else {
-                visiblePairs[leftPairIndex].question = ""
-                visiblePairs[rightPairIndex].answer = ""
+            withAnimation(.bouncy(duration: matchDelay).delay(matchDelay)) {
+                if let newItem = remainingData.popLast() {
+                    visiblePairs[leftPairIndex].question = newItem.question
+                    visiblePairs[rightPairIndex].answer = newItem.answer
+                } else {
+                    visiblePairs[leftPairIndex].question = ""
+                    visiblePairs[rightPairIndex].answer = ""
+                }
             }
             
             cleanupMatches(left: left, right: right)

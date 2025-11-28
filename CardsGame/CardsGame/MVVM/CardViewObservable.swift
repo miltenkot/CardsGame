@@ -35,6 +35,7 @@ struct CardViewObservable: View, Equatable {
                 .scaleEffect(isCorrect ? 0.7 : 1.0)
                 .animation(.easeIn(duration: GameConfig.matchDelay), value: isCorrect)
                 .id(title)
+                .transition(.opacity)
         }
         .buttonStyle(
             PrimaryButtonStyle(
