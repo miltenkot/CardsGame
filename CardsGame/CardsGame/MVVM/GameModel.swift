@@ -47,6 +47,12 @@ import SwiftUI
         return isActiveSelection || isMatched(text, side: side) || isMismatched(text, side: side)
     }
     
+    // Stores the task responsible for the countdown (sleep)
+    private var currentMatchTask: Task<Void, Never>?
+    
+    // Stores the code that should be executed after the time elapses (card replacement)
+    private var pendingReplacementAction: (() -> Void)?
+    
     init() {
         let allData = data.shuffled()
         
@@ -98,9 +104,7 @@ import SwiftUI
     }
     
     private func checkForMatch() async {
-        guard let left = leftIsSelected, let right = rightIsSelected else {
-            return
-        }
+        guard let left = leftIsSelected, let right = rightIsSelected else { return }
         
         let selectedLeft = left
         let selectedRight = right
@@ -112,26 +116,48 @@ import SwiftUI
             matchedLeft.insert(selectedLeft)
             matchedRight.insert(selectedRight)
             
+            // CHECK: Is there a previous pair waiting to disappear?
+            // If yes, cancel its wait time and execute the replacement IMMEDIATELY.
+            if let pendingAction = pendingReplacementAction {
+                currentMatchTask?.cancel() // Stop the previous timer
+                pendingAction()            // execute the previous action now
+                pendingReplacementAction = nil
+            }
+            
             guard let leftPairIndex = visiblePairs.firstIndex(where: { $0.question == left }),
                   let rightPairIndex = visiblePairs.firstIndex(where: { $0.answer == right }) else {
                 cleanupMatches(left: left, right: right)
                 return
             }
             
-            withAnimation(
-                .bouncy(duration: matchDelay)
-                .delay(matchDelay)
-            ) {
-                if let newItem = remainingData.popLast() {
-                    visiblePairs[leftPairIndex].question = newItem.question
-                    visiblePairs[rightPairIndex].answer = newItem.answer
-                } else {
-                    visiblePairs[leftPairIndex].question = ""
-                    visiblePairs[rightPairIndex].answer = ""
+            let replacementAction = { [unowned self] in
+                withAnimation(.bouncy(duration: matchDelay)) {
+                    if let newItem = remainingData.popLast() {
+                        visiblePairs[leftPairIndex].question = newItem.question
+                        visiblePairs[rightPairIndex].answer = newItem.answer
+                    } else {
+                        visiblePairs[leftPairIndex].question = ""
+                        visiblePairs[rightPairIndex].answer = ""
+                    }
+                }
+                cleanupMatches(left: left, right: right)
+            }
+            // Store this action as "pending"
+            pendingReplacementAction = replacementAction
+            
+            // Start the timer
+            currentMatchTask = Task {
+                // Wait for the specified matchDelay
+                try? await Task.sleep(for: .seconds(matchDelay))
+                
+                // If the task was NOT cancelled (user didn't make another match),
+                // execute the action normally after the delay.
+                if !Task.isCancelled {
+                    replacementAction()
+                    pendingReplacementAction = nil
                 }
             }
             
-            cleanupMatches(left: left, right: right)
         } else {
             isShowingMismatch = true
             
