@@ -129,7 +129,10 @@ import SwiftUI
             return
         }
         
-        withAnimation(.bouncy(duration: matchDelay)) {
+        withAnimation(
+            .bouncy(duration: matchDelay)
+            .delay(matchDelay)
+        ) {
             visiblePairs[leftPairIndex].question = ""
             visiblePairs[rightPairIndex].answer = ""
         }
