@@ -123,46 +123,42 @@ import SwiftUI
         matchedLeft.insert(left)
         matchedRight.insert(right)
         
-        // CHECK: Is there a previous pair waiting to disappear?
-        // If yes, cancel its wait time and execute the replacement IMMEDIATELY.
-        if let pendingAction = pendingReplacementAction {
-            currentMatchTask?.cancel() // Stop the previous timer
-            pendingAction()            // execute the previous action now
-            pendingReplacementAction = nil
-        }
-        
         guard let leftPairIndex = visiblePairs.firstIndex(where: { $0.question == left }),
               let rightPairIndex = visiblePairs.firstIndex(where: { $0.answer == right }) else {
             cleanupMatches(left: left, right: right)
             return
         }
         
-        let replacementAction = { [unowned self] in
-            withAnimation(.bouncy(duration: matchDelay)) {
-                if let newItem = remainingData.popLast() {
-                    visiblePairs[leftPairIndex].question = newItem.question
-                    visiblePairs[rightPairIndex].answer = newItem.answer
-                } else {
-                    visiblePairs[leftPairIndex].question = ""
-                    visiblePairs[rightPairIndex].answer = ""
-                }
-            }
-            cleanupMatches(left: left, right: right)
+        withAnimation(.bouncy(duration: matchDelay)) {
+            visiblePairs[leftPairIndex].question = ""
+            visiblePairs[rightPairIndex].answer = ""
         }
-        // Store this action as "pending"
-        pendingReplacementAction = replacementAction
         
-        // Start the timer
-        currentMatchTask = Task {
-            // Wait for the specified matchDelay
+        Task { @MainActor in
             try? await Task.sleep(for: .seconds(matchDelay))
             
-            // If the task was NOT cancelled (user didn't make another match),
-            // execute the action normally after the delay.
-            if !Task.isCancelled {
-                replacementAction()
-                pendingReplacementAction = nil
+            guard let newItem = remainingData.popLast() else {
+                cleanupMatches(left: left, right: right)
+                return
             }
+            
+            let emptyQuestionIndices = visiblePairs.indices
+                .filter { visiblePairs[$0].question.isEmpty }
+            
+            let emptyAnswerIndices = visiblePairs.indices
+                .filter { visiblePairs[$0].answer.isEmpty }
+            
+            guard let targetQ = emptyQuestionIndices.randomElement(),
+                  let targetA = emptyAnswerIndices.randomElement() else {
+                cleanupMatches(left: left, right: right)
+                return
+            }
+            withAnimation(.bouncy(duration: matchDelay)) {
+                visiblePairs[targetQ].question = newItem.question
+                visiblePairs[targetA].answer = newItem.answer
+            }
+            
+            cleanupMatches(left: left, right: right)
         }
     }
     
